@@ -5,6 +5,14 @@ from backbase_app.serializers import CurrencyExchangeSerializer, CurrencySeriali
 from django.http import JsonResponse
 from rest_framework.response import Response
 from django.utils.dateparse import parse_date
+from backbase_app.api.generic_api import GenericAPI
+import asyncio
+
+def run_asyncio_task(async_func, *args, **kwargs):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    return loop.run_until_complete(async_func(*args, **kwargs))
+
 
 class CurrencyViewSet(viewsets.ModelViewSet):
     queryset = Currency.objects.all()
@@ -45,12 +53,31 @@ class CurrencyExchangeAPIViewSet(viewsets.ModelViewSet):
         except ValueError as e:
             return Response({'error': str(e)}, status=400)
 
+from django.views.decorators.csrf import csrf_exempt
+
+
+@csrf_exempt
 def get_exchange_rate_data(request):
-    #get_exchange_rate_data(source_currency, exchanged_currency, valuation_date, provider)
-    # get data from backend,
 
-    # if not, get data from providers (priority) and save it in the backend
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+    
+    generic_api = GenericAPI()
 
-    # if not data, continue with the next provider
+    source_currency = request.GET.get('source_currency', None)
+    exchanged_currency = request.GET.get('exchanged_currency', None)
+    valuation_date = request.GET.get('valuation_date', None)
+    parsed_date = parse_date(valuation_date)
 
-    return JsonResponse({"data": "data"})
+    if parsed_date is None:
+        return JsonResponse({'error': 'Invalid date format. It must be in YYYY-MM-DD format.'}, status=400)
+    if not source_currency or not exchanged_currency or not valuation_date:
+        return JsonResponse({'error': 'Invalid parameters'}, status=400)
+    
+    print("source_currency", source_currency)
+    print("exchanged_currency", exchanged_currency)
+    print("valuation_date", valuation_date)
+    data = run_asyncio_task(generic_api.get_exchange_rate_data, source_currency, exchanged_currency, valuation_date)
+    print("data", data)
+
+    return JsonResponse(data)
