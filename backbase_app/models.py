@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils import timezone
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 class Currency(models.Model):
     code = models.CharField(max_length=3, unique=True)
@@ -16,4 +18,13 @@ class CurrencyExchangeRate(models.Model):
     rate_value = models.DecimalField(db_index=True, decimal_places=6, max_digits=18)
 
     def __str__(self):
-            return f"{self.source_currency} - {self.exchanged_currency}"
+        return f"{self.source_currency} - {self.exchanged_currency}"
+
+class ProviderExchange(models.Model):
+    id_name = models.CharField(max_length=10, unique=True, db_index=True)
+    name = models.CharField(max_length=100)
+    priority = models.PositiveIntegerField(default=0)
+    activated = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.priority}"

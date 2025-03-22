@@ -22,24 +22,55 @@ class CurrencyBeaconAPI:
         if symbols:
             params['symbols'] = ','.join(symbols)
         async with aiohttp.ClientSession() as session:
-            return await self.fetch(session, 'latest', params)
+            data = await self.fetch(session, 'latest', params)
+            return data["response"]
 
     async def convert_currency(self, from_currency, to_currency, amount):
         params = {'from': from_currency, 'to': to_currency, 'amount': amount}
         async with aiohttp.ClientSession() as session:
-            return await self.fetch(session, 'convert', params)
+            data = await self.fetch(session, 'convert', params)
+            return data["response"]
+
+    async def get_historical_rates(self, date, base='USD', symbols=None):
+        params = {'base': base, 'date': date}
+        if symbols:
+            params['symbols'] = ','.join(symbols)
+        async with aiohttp.ClientSession() as session:
+            data = await self.fetch(session, 'historical', params)
+            return data["response"]
+
+    async def get_time_series(self, start_date, end_date, base='USD', symbols=None):
+        params = {'base': base, 'start_date': start_date, 'end_date': end_date}
+        if symbols:
+            params['symbols'] = ','.join(symbols)
+        async with aiohttp.ClientSession() as session:
+            data = await self.fetch(session, 'timeseries', params)
+            return data["response"]
+        
 
 async def main():
 
     cb_api = CurrencyBeaconAPI()
     
     latest_rates = await cb_api.get_latest_rates(symbols=SYMBOLS)
-    #print(latest_rates)
-    print(latest_rates["response"]["rates"])
+    print(latest_rates)
     
-    conversion_result = await cb_api.convert_currency('EUR', 'USD', 100)
-    #print(conversion_result)
-    print(conversion_result["response"]["value"])
+    currency_to_convert = "USD"
+    currency_base = "USD"
+    amount = 100
+    conversion_result = await cb_api.convert_currency(currency_base, currency_to_convert, amount)
+    print(conversion_result)
+
+    print("----")
+    #YYYY-MM-DD
+    base = "USD"
+    date = "2025-03-16"
+    conversion_result = await cb_api.get_historical_rates(date, base, SYMBOLS)
+    print(conversion_result)
+
+    print("---------")
+    time_series = await cb_api.get_time_series('2025-03-18', '2025-03-20', base, SYMBOLS)
+    print(time_series)
     
 
 if __name__ == "__main__":
