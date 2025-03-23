@@ -52,10 +52,9 @@ class GenericAPI:
 
     async def get_exchange_rate_data(self, source_currency, exchanged_currency, valuation_date):
         data = await self.internal_api.get_exchange_rate_data(source_currency, exchanged_currency, valuation_date)
-        print("1", data)
         if data["rate_value"] is not None:
             return data
-        
+
         providers_exclude = []
         providers = await get_all_providers()
         providers_totals = len(providers)
@@ -73,15 +72,57 @@ class GenericAPI:
 
         return data
 
+    async def get_currency_rates_list(self, start_date, end_date, base, symbols):
+        data = await self.internal_api.get_currency_rates_list(start_date, end_date, base, symbols)
+
+        symbols = symbols.split(", ")
+        error = False
+        if data:
+            # check if exists data for all dates
+            for date in data:
+                if not data[date] or set(symbols) != set(list(data[date].keys())):
+                    error = True
+                    break
+
+        if error:
+            providers_exclude = []
+            providers = await get_all_providers()
+            providers_totals = len(providers)
+            count_providers = 0
+
+            while error and count_providers < providers_totals:
+                print(f"trying to get data excluding providers: {providers_exclude}")
+                provider = await get_provider_exchange(providers=providers_exclude)
+                provider_name = str(provider.id_name)
+                data = await self.providers_api.get_time_series(start_date, end_date, base, symbols, provider_name)
+                providers_exclude.append(provider.id_name)
+                count_providers += 1
+                error = False
+                for date in data:
+                    if not data[date] or set(symbols) != set(list(data[date].keys())):
+                        error = True
+                        break
+        if error:
+            return {}
+
+        return data
 
 async def main():
     generic_api = GenericAPI()
-    
+
     source_currency = "USD"
     exchanged_currency = "EUR"
     valuation_date = "2025-02-02"
     data = await generic_api.get_exchange_rate_data(source_currency, exchanged_currency, valuation_date)
     print("data", data)
+
+    start_date = "2025-03-20"
+    end_date = "2025-03-22"
+    base = "USD"
+    symbols = "GBP, EUR"
+    data = await generic_api.get_currency_rates_list(start_date, end_date, base, symbols)
+    print(data)
+
 
 if __name__ == "__main__":
     asyncio.run(main())

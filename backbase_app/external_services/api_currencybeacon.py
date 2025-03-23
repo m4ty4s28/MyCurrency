@@ -51,12 +51,13 @@ class CurrencyBeaconAPI:
 async def main():
 
     cb_api = CurrencyBeaconAPI()
+    SYMBOLS = ["EUR", "CHF", "USD", "GBP"]
     
     latest_rates = await cb_api.get_latest_rates(symbols=SYMBOLS)
     print(latest_rates)
     
-    currency_to_convert = "USD"
     currency_base = "USD"
+    currency_to_convert = "EUR"
     amount = 100
     conversion_result = await cb_api.convert_currency(currency_base, currency_to_convert, amount)
     print(conversion_result)
@@ -69,7 +70,8 @@ async def main():
     print(conversion_result)
 
     print("---------")
-    time_series = await cb_api.get_time_series('2025-03-18', '2025-03-20', base, SYMBOLS)
+    SYMBOLS = ["EUR", "GBP"]
+    time_series = await cb_api.get_time_series('2025-03-20', '2025-03-22', base, SYMBOLS)
     print(time_series)
     
 

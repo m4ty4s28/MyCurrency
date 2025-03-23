@@ -22,7 +22,7 @@ from asgiref.sync import sync_to_async
 from django.utils import timezone
 
 @sync_to_async
-def save_data(base, symbol, rate_value, date=None):
+def save_data_rate(base, symbol, rate_value, date=None):
     source_currency_obj = Currency.objects.get(symbol=base)
     exchanged_currency_obj = Currency.objects.get(symbol=symbol)
     try:
@@ -54,7 +54,28 @@ def save_data(base, symbol, rate_value, date=None):
     return {"rate_value" : None}
 
 
+@sync_to_async
+def save_data_time_series(data, base):
+    base_currency_obj = Currency.objects.get(symbol=base)
+    for date, symbols in data.items():
+            date_obj = timezone.datetime.strptime(date, '%Y-%m-%d')
+            for symbol, rate_value in symbols.items():
+                symbol_obj = Currency.objects.get(symbol=symbol)
+                if not CurrencyExchangeRate.objects.filter(
+                    source_currency=base_currency_obj,
+                    exchanged_currency=symbol_obj,
+                    valuation_date=date_obj,
+                ).exists():
+                    CurrencyExchangeRate.objects.create(
+                        source_currency=base_currency_obj,
+                        exchanged_currency=symbol_obj,
+                        valuation_date=date_obj,
+                        rate_value=float(rate_value)
+                                    )
+
+
 class ProvidersAPI():
+
     def __init__(self):
         self.mock_api = MockAPI()
         self.cb_api = CurrencyBeaconAPI()
@@ -70,7 +91,7 @@ class ProvidersAPI():
             print(f"save data in database with provider {provider}")
             for symbol in symbols:
                 rate_value = float(data["rates"][symbol])
-                rate_value_symbol = await save_data(base, symbol, rate_value)
+                rate_value_symbol = await save_data_rate(base, symbol, rate_value)
                 if not rate_value_symbol:
                     print(f"Error to save in database with provider {provider}")
                     data_rate_value[symbol] = None
@@ -87,7 +108,7 @@ class ProvidersAPI():
             print(f"save data in database with provider {provider}")
             for symbol in symbols:
                 rate_value = float(data["rates"][symbol])
-                rate_value_symbol = await save_data(base, symbol, rate_value, date)
+                rate_value_symbol = await save_data_rate(base, symbol, rate_value, date)
                 if not rate_value_symbol:
                     print(f"Error to save in database with provider {provider}")
                     data_rate_value[symbol] = None
@@ -101,7 +122,9 @@ class ProvidersAPI():
 
 
     async def get_time_series(self, start_date, end_date, base, symbols, provider):
-        return await self.provider_map[provider].get_time_series(start_date, end_date, base, symbols)
+        data = await self.provider_map[provider].get_time_series(start_date, end_date, base, symbols)
+        await save_data_time_series(data, base)
+        return data
 
 
 async def main():
@@ -114,43 +137,43 @@ async def main():
 
     base = "USD"
 
-
-    data = run_asyncio_task(api.get_latest_rates, base, symbols, "mock")
+    """
+    data = await api.get_latest_rates(base, symbols, "MC")
     print(data)
     print("----------------")
-    data = run_asyncio_task(api.get_latest_rates, base, symbols, "currency_beacon")
+    data = await api.get_latest_rates( base, symbols, "CB")
     print(data)
-    sys.exit()
+    #sys.exit()
 
     date = "2025-03-19"
     base = "USD"
     symbols = ["EUR", "CHF", "USD", "GBP"]
     symbols = ["EUR"] #, "CHF", "USD", "GBP"]
-    data = run_asyncio_task(api.get_historical_rates, date, base, symbols, "mock")
+    data = await api.get_historical_rates(date, base, symbols, "MC")
     print(data)
 
-    sys.exit()
-    data = run_asyncio_task(api.get_historical_rates, date, base, symbols, "currency_beacon")
+    data = await api.get_historical_rates(date, base, symbols, "CB")
     print(data)
-
+    
+    #sys.exit()
 
     print("----------------")
-    data = run_asyncio_task(api.convert_currency, "USD", "EUR", 100, "mock")
+    data = await api.convert_currency("USD", "EUR", 100, "MC")
     print(data)
     print("----------------")
     currency_to_convert = "EUR"
     currency_base = "CHF"
     amount = 100
-    data = run_asyncio_task(api.convert_currency, currency_to_convert, currency_base, amount, "currency_beacon")
+    data = await api.convert_currency(currency_to_convert, currency_base, amount, "CB")
     print(data)
     print("---------------")
-
-    start_date = "2025-03-18"
-    end_date = "2025-03-20"
-    data = run_asyncio_task(api.get_time_series, start_date, end_date, 'USD', ["EUR", "CHF", "USD", "GBP"], "mock")
+    """
+    start_date = "2025-03-20"
+    end_date = "2025-03-22"
+    data = await api.get_time_series(start_date, end_date, 'USD', ["EUR", "CHF", "USD", "GBP"], "MC")
     print(data)
     print("----------------")
-    data = run_asyncio_task(api.get_time_series, start_date, end_date, 'USD', ["EUR", "CHF", "USD", "GBP"], "currency_beacon")
+    data = await api.get_time_series(start_date, end_date, 'USD', ["EUR", "CHF", "USD", "GBP"], "CB")
     print(data)
 
 if __name__ == "__main__":

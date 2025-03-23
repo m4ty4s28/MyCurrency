@@ -1,11 +1,15 @@
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.utils.dateparse import parse_date
+from django.views.decorators.csrf import csrf_exempt
+
 from rest_framework import viewsets
+from rest_framework.response import Response
+
 from backbase_app.models import CurrencyExchangeRate, Currency
 from backbase_app.serializers import CurrencyExchangeSerializer, CurrencySerializer
-from django.http import JsonResponse
-from rest_framework.response import Response
-from django.utils.dateparse import parse_date
 from backbase_app.api.generic_api import GenericAPI
+
 import asyncio
 
 def run_asyncio_task(async_func, *args, **kwargs):
@@ -53,7 +57,39 @@ class CurrencyExchangeAPIViewSet(viewsets.ModelViewSet):
         except ValueError as e:
             return Response({'error': str(e)}, status=400)
 
-from django.views.decorators.csrf import csrf_exempt
+class CurrencyRateListAPIViewSet(viewsets.ModelViewSet):
+    queryset = CurrencyExchangeRate.objects.all()
+    serializer_class = CurrencyExchangeSerializer
+
+    def get_queryset(self):
+        queryset = CurrencyExchangeRate.objects.all()
+       
+        start_date = self.request.query_params.get('start_date', None)
+        end_date = self.request.query_params.get('end_date', None)
+        base = self.request.query_params.get('base', None)
+        symbols = self.request.query_params.get('symbols', None)
+        if start_date is None and end_date is None and base is None and symbols is None:
+            return queryset
+        parsed_date_start = parse_date(start_date)
+        parsed_date_end = parse_date(end_date)
+        if parsed_date_start is None or parsed_date_end is None:
+            raise ValueError("Invalid date format. It must be in YYYY-MM-DD format.")
+        if start_date is not None and end_date is not None and base is not None and symbols is not None:
+            queryset = queryset.filter(
+                source_currency__symbol=base,
+                exchanged_currency__symbol__in=list(map(str.strip, symbols.split(','))),
+                valuation_date__gte=start_date,
+                valuation_date__lte=end_date
+            ).order_by('-valuation_date')
+        return queryset
+
+    def list(self, request):
+        try:
+            queryset = self.get_queryset()
+            data = queryset.values('source_currency__symbol', 'exchanged_currency__symbol', 'rate_value', 'valuation_date')
+            return Response(data)
+        except ValueError as e:
+            return Response({'error': str(e)}, status=400)
 
 
 @csrf_exempt
@@ -77,7 +113,39 @@ def get_exchange_rate_data(request):
     print("source_currency", source_currency)
     print("exchanged_currency", exchanged_currency)
     print("valuation_date", valuation_date)
+    
     data = run_asyncio_task(generic_api.get_exchange_rate_data, source_currency, exchanged_currency, valuation_date)
+    print("data", data)
+
+    return JsonResponse(data)
+
+@csrf_exempt
+def get_currency_rates_list(request):
+
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+    
+    generic_api = GenericAPI()
+
+    start_date = request.GET.get('start_date', None)
+    end_date = request.GET.get('end_date', None)
+    base = request.GET.get('base', None)
+    symbols = request.GET.get('symbols', None)
+
+    parsed_date_start = parse_date(start_date)
+    parsed_date_end = parse_date(end_date)
+
+    if parsed_date_start is None or parsed_date_end is None:
+        return JsonResponse({'error': 'Invalid date format. It must be in YYYY-MM-DD format.'}, status=400)
+    if not start_date or not end_date or not base or not symbols:
+        return JsonResponse({'error': 'Invalid parameters'}, status=400)
+    
+    print("start_date", start_date)
+    print("end_date", end_date)
+    print("base", base)
+    print("symbols", symbols)
+
+    data = run_asyncio_task(generic_api.get_currency_rates_list, start_date, end_date, base, symbols)
     print("data", data)
 
     return JsonResponse(data)
