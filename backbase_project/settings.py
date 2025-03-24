@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -131,6 +132,9 @@ CELERY_BROKER_URL = f'redis://{REDIS_URL}:6379/0'
 #CELERY_ACCEPT_CONTENT = ['json']
 #CELERY_TASK_SERIALIZER = 'json'
 
+ADMIN_SITE_HEADER = "My Currency"
+ADMIN_SITE_TITLE = "Administration My Currency"
+ADMIN_INDEX_TITLE = "Welcome to Administrator My Currency"
 
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 
@@ -139,7 +143,6 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 
 CELERY_TASK_SERIALIZER = 'json'
-
 
 
 CELERY_BEAT_SCHEDULE = {
