@@ -237,7 +237,22 @@ def get_currency_rates_list(request: HttpRequest) -> HttpResponse:
 
 @csrf_exempt
 def get_convert_amount(request: HttpRequest) -> HttpResponse:
-
+    """
+    View function to convert an amount from one currency to another.
+    
+    Args:
+        request: The HTTP request object containing query parameters:
+            - currency_base: The source currency code (e.g., USD)
+            - currency_to_convert: The target currency code (e.g., EUR)
+            - amount: The amount to convert
+            
+    Returns:
+        HttpResponse: JSON response containing the converted amount or error message
+        
+    Raises:
+        HTTP 405: If the request method is not GET
+        HTTP 400: If any required parameters are missing
+    """
     if request.method != 'GET':
         return JsonResponse({'error': 'Invalid method'}, status=405)
     
