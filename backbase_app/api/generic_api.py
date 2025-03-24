@@ -107,9 +107,32 @@ class GenericAPI:
 
         return data
 
+    async def get_convert_amount(self, currency_base, currency_to_convert, amount):
+        data = await self.internal_api.get_convert_amount(currency_base, currency_to_convert, amount)
+
+        if data["value"] is not None:
+            return data
+        
+        providers_exclude = []
+        providers = await get_all_providers()
+        providers_totals = len(providers)
+        count_providers = 0
+
+        while data["value"] is None and count_providers < providers_totals:
+            print(f"trying to get data excluding providers: {providers_exclude}")
+            provider = await get_provider_exchange(providers=providers_exclude)
+            provider_name = str(provider.id_name)
+            data = await self.providers_api.convert_currency(currency_base, currency_to_convert, amount, provider_name)
+            providers_exclude.append(provider.id_name)
+            count_providers += 1
+            data["value"] = data["value"]
+
+        return data
+
+
 async def main():
     generic_api = GenericAPI()
-
+    """
     source_currency = "USD"
     exchanged_currency = "EUR"
     valuation_date = "2025-02-02"
@@ -121,6 +144,12 @@ async def main():
     base = "USD"
     symbols = "GBP, EUR"
     data = await generic_api.get_currency_rates_list(start_date, end_date, base, symbols)
+    print(data)
+    """
+    currency_base = "USD"
+    currency_to_convert = "EUR"
+    amount = 100
+    data = await generic_api.get_convert_amount(currency_base, currency_to_convert, amount)
     print(data)
 
 

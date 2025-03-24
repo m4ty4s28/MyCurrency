@@ -73,6 +73,20 @@ def save_data_time_series(data, base):
                         rate_value=float(rate_value)
                                     )
 
+@sync_to_async
+def save_data_convert(from_currency, to_currency, rate_value):
+    source_currency_obj = Currency.objects.get(symbol=from_currency)
+    exchanged_currency_obj = Currency.objects.get(symbol=to_currency)
+
+    try:
+        CurrencyExchangeRate.objects.create(
+                source_currency=source_currency_obj,
+                exchanged_currency=exchanged_currency_obj,
+                rate_value=rate_value
+            )
+    except Exception as e:
+        print(e)
+
 
 class ProvidersAPI():
 
@@ -84,7 +98,7 @@ class ProvidersAPI():
             "CB": self.cb_api
         }
 
-    async def get_latest_rates(self, base, symbols, provider): # get_latest_rates
+    async def get_latest_rates(self, base, symbols, provider):
         data =  await self.provider_map[provider].get_latest_rates(base, symbols)
         data_rate_value = {}
         if data:
@@ -118,7 +132,13 @@ class ProvidersAPI():
         return data_rate_value
 
     async def convert_currency(self, from_currency, to_currency, amount, provider):
-        return await self.provider_map[provider].convert_currency(from_currency, to_currency, amount)
+        data = await self.provider_map[provider].convert_currency(from_currency, to_currency, amount)
+
+        rate_value = float(data["value"]/amount)
+
+        await save_data_convert(from_currency, to_currency, rate_value)
+
+        return data
 
 
     async def get_time_series(self, start_date, end_date, base, symbols, provider):
@@ -157,6 +177,7 @@ async def main():
     
     #sys.exit()
 
+    """
     print("----------------")
     data = await api.convert_currency("USD", "EUR", 100, "MC")
     print(data)
@@ -167,7 +188,6 @@ async def main():
     data = await api.convert_currency(currency_to_convert, currency_base, amount, "CB")
     print(data)
     print("---------------")
-    """
     start_date = "2025-03-20"
     end_date = "2025-03-22"
     data = await api.get_time_series(start_date, end_date, 'USD', ["EUR", "CHF", "USD", "GBP"], "MC")

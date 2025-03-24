@@ -1,6 +1,15 @@
 import aiohttp
 import asyncio
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backbase_project.settings')
+
+import django
+django.setup()
+
 SYMBOLS = ["EUR", "CHF", "USD", "GBP"]
 API_URL_INTERNAL = "http://127.0.0.1:8000/"
 API_VERSION_INTERNAL = "api/"
@@ -44,6 +53,32 @@ class InternalAPI:
 
         return data_return
 
+    async def get_convert_amount(self, currency_base, currency_to_convert, amount):
+        source_currency = currency_base
+        exchanged_currency = currency_to_convert
+        valuation_date = str(timezone.now().date())
+
+        params = {'source_currency': source_currency, 'exchanged_currency': exchanged_currency, 'valuation_date': valuation_date}
+
+        async with aiohttp.ClientSession() as session:
+            data = await self.fetch(session, 'currency_exchange_api', params)
+
+        rate_value = None
+        if data["rate_value"] is not None:
+            rate_value = float(data["rate_value"]) * float(amount)
+
+        date_obj = timezone.datetime.strptime(valuation_date, '%Y-%m-%d')
+        data_return = {
+            "timestamp": int(timezone.datetime.timestamp(date_obj)),
+            "date" : valuation_date,
+            "from" : source_currency,
+            "to" : exchanged_currency,
+            "amount" : amount,
+            "value" : rate_value
+        }
+
+        return data_return
+
 async def main():
 
     internal_api = InternalAPI()
@@ -61,6 +96,12 @@ async def main():
     symbols = "EUR, GBP" #["EUR", "CHF", "USD", "GBP"]
     symbols = "GBP, EUR"
     data = await internal_api.get_currency_rates_list(start_date, end_date, base, symbols)
+    print(data)
+    print("-----------")
+    currency_base = "USD"
+    currency_to_convert = "EUR"
+    amount = 100
+    data = await internal_api.get_convert_amount(currency_base, currency_to_convert, amount)
     print(data)
     
 

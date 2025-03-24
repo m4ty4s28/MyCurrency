@@ -1,10 +1,13 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.utils.dateparse import parse_date
 from django.views.decorators.csrf import csrf_exempt
+from typing import Any, Callable, Dict, List, Optional, Union
+from datetime import date
 
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.request import Request
 
 from backbase_app.models import CurrencyExchangeRate, Currency
 from backbase_app.serializers import CurrencyExchangeSerializer, CurrencySerializer
@@ -12,26 +15,58 @@ from backbase_app.api.generic_api import GenericAPI
 
 import asyncio
 
-def run_asyncio_task(async_func, *args, **kwargs):
+def run_asyncio_task(async_func: Callable, *args: Any, **kwargs: Any) -> Any:
+    """
+    Runs an async function in a new event loop.
+    
+    Args:
+        async_func: The async function to run
+        *args: Positional arguments for the async function
+        **kwargs: Keyword arguments for the async function
+        
+    Returns:
+        Any: The result of the async function
+    """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     return loop.run_until_complete(async_func(*args, **kwargs))
 
 
 class CurrencyViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing Currency objects.
+    Provides CRUD operations for currencies.
+    """
     queryset = Currency.objects.all()
     serializer_class = CurrencySerializer
     lookup_field = 'symbol'
 
 class CurrencyExchangeViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing CurrencyExchangeRate objects.
+    Provides CRUD operations for currency exchange rates.
+    """
     queryset = CurrencyExchangeRate.objects.all()
     serializer_class = CurrencyExchangeSerializer
 
 class CurrencyExchangeAPIViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for handling currency exchange rate API requests.
+    Provides filtered queries based on source currency, exchanged currency, and date.
+    """
     queryset = CurrencyExchangeRate.objects.all()
     serializer_class = CurrencyExchangeSerializer
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
+        """
+        Filters the queryset based on query parameters.
+        
+        Returns:
+            QuerySet: Filtered queryset of CurrencyExchangeRate objects
+            
+        Raises:
+            ValueError: If the date format is invalid
+        """
         queryset = CurrencyExchangeRate.objects.all()
         source_currency = self.request.query_params.get('source_currency', None)
         exchanged_currency = self.request.query_params.get('exchanged_currency', None)
@@ -47,7 +82,16 @@ class CurrencyExchangeAPIViewSet(viewsets.ModelViewSet):
                                        valuation_date=valuation_date).order_by('-valuation_date')
         return queryset
 
-    def list(self, request):
+    def list(self, request: Request) -> Response:
+        """
+        Returns a single exchange rate value for the filtered queryset.
+        
+        Args:
+            request: The HTTP request object
+            
+        Returns:
+            Response: JSON response containing the rate value or error message
+        """
         try:
             queryset = self.get_queryset()
             if queryset.exists():
@@ -58,10 +102,23 @@ class CurrencyExchangeAPIViewSet(viewsets.ModelViewSet):
             return Response({'error': str(e)}, status=400)
 
 class CurrencyRateListAPIViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for handling currency rate list API requests.
+    Provides filtered queries based on date range, base currency, and target currencies.
+    """
     queryset = CurrencyExchangeRate.objects.all()
     serializer_class = CurrencyExchangeSerializer
 
-    def get_queryset(self):
+    def get_queryset(self) -> Any:
+        """
+        Filters the queryset based on query parameters.
+        
+        Returns:
+            QuerySet: Filtered queryset of CurrencyExchangeRate objects
+            
+        Raises:
+            ValueError: If the date format is invalid
+        """
         queryset = CurrencyExchangeRate.objects.all()
        
         start_date = self.request.query_params.get('start_date', None)
@@ -83,7 +140,16 @@ class CurrencyRateListAPIViewSet(viewsets.ModelViewSet):
             ).order_by('-valuation_date')
         return queryset
 
-    def list(self, request):
+    def list(self, request: Request) -> Response:
+        """
+        Returns a list of exchange rates for the filtered queryset.
+        
+        Args:
+            request: The HTTP request object
+            
+        Returns:
+            Response: JSON response containing the list of rates or error message
+        """
         try:
             queryset = self.get_queryset()
             data = queryset.values('source_currency__symbol', 'exchanged_currency__symbol', 'rate_value', 'valuation_date')
@@ -93,8 +159,16 @@ class CurrencyRateListAPIViewSet(viewsets.ModelViewSet):
 
 
 @csrf_exempt
-def get_exchange_rate_data(request):
-
+def get_exchange_rate_data(request: HttpRequest) -> HttpResponse:
+    """
+    View function to get exchange rate data for a specific currency pair and date.
+    
+    Args:
+        request: The HTTP request object containing query parameters
+        
+    Returns:
+        HttpResponse: JSON response containing the exchange rate data or error message
+    """
     if request.method != 'GET':
         return JsonResponse({'error': 'Invalid method'}, status=405)
     
@@ -103,6 +177,7 @@ def get_exchange_rate_data(request):
     source_currency = request.GET.get('source_currency', None)
     exchanged_currency = request.GET.get('exchanged_currency', None)
     valuation_date = request.GET.get('valuation_date', None)
+    
     parsed_date = parse_date(valuation_date)
 
     if parsed_date is None:
@@ -120,8 +195,16 @@ def get_exchange_rate_data(request):
     return JsonResponse(data)
 
 @csrf_exempt
-def get_currency_rates_list(request):
-
+def get_currency_rates_list(request: HttpRequest) -> HttpResponse:
+    """
+    View function to get a list of exchange rates for multiple currencies over a date range.
+    
+    Args:
+        request: The HTTP request object containing query parameters
+        
+    Returns:
+        HttpResponse: JSON response containing the list of rates or error message
+    """
     if request.method != 'GET':
         return JsonResponse({'error': 'Invalid method'}, status=405)
     
@@ -146,6 +229,32 @@ def get_currency_rates_list(request):
     print("symbols", symbols)
 
     data = run_asyncio_task(generic_api.get_currency_rates_list, start_date, end_date, base, symbols)
+    print("data", data)
+
+    return JsonResponse(data)
+
+
+
+@csrf_exempt
+def get_convert_amount(request: HttpRequest) -> HttpResponse:
+
+    if request.method != 'GET':
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+    
+    generic_api = GenericAPI()
+
+    currency_base = request.GET.get('currency_base', None)
+    currency_to_convert = request.GET.get('currency_to_convert', None)
+    amount = request.GET.get('amount', None)
+
+    if not currency_base or not currency_to_convert or not amount:
+        return JsonResponse({'error': 'Invalid parameters'}, status=400)
+
+    print("currency_base", currency_base)
+    print("currency_to_convert", currency_to_convert)
+    print("amount", amount)
+
+    data = run_asyncio_task(generic_api.get_convert_amount, currency_base, currency_to_convert, amount)
     print("data", data)
 
     return JsonResponse(data)
