@@ -1,5 +1,7 @@
 import aiohttp
 import asyncio
+from typing import Dict, List, Any, Optional, Union
+from datetime import datetime
 
 import sys
 import os
@@ -10,26 +12,73 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backbase_project.settings')
 import django
 django.setup()
 
-SYMBOLS = ["EUR", "CHF", "USD", "GBP"]
-API_URL_INTERNAL = "http://127.0.0.1:8000/"
-API_VERSION_INTERNAL = "api/"
+SYMBOLS: List[str] = ["EUR", "CHF", "USD", "GBP"]
+API_URL_INTERNAL: str = "http://127.0.0.1:8000/"
+API_VERSION_INTERNAL: str = "api/"
 from django.utils import timezone
 
 class InternalAPI:
-    def __init__(self):
-        self.base_url = API_URL_INTERNAL + API_VERSION_INTERNAL
+    """
+    A class that handles internal API requests for currency exchange operations.
+    
+    This class provides methods to interact with the internal API endpoints
+    for retrieving exchange rates and performing currency conversions.
+    
+    Attributes:
+        base_url (str): The base URL for the internal API
+    """
+    
+    def __init__(self) -> None:
+        """
+        Initialize the InternalAPI with the base URL.
+        """
+        self.base_url: str = API_URL_INTERNAL + API_VERSION_INTERNAL
 
-    async def fetch(self, session, endpoint, params):
+    async def fetch(self, session: aiohttp.ClientSession, endpoint: str, params: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Make an HTTP GET request to the specified endpoint.
+        
+        Args:
+            session: The aiohttp client session to use for the request
+            endpoint: The API endpoint to call
+            params: Query parameters for the request
+            
+        Returns:
+            Dict[str, Any]: The JSON response from the API
+        """
         url = f"{self.base_url}{endpoint}"
         async with session.get(url, params=params) as response:
             return await response.json()
 
-    async def get_exchange_rate_data(self, source_currency, exchanged_currency, valuation_date):
+    async def get_exchange_rate_data(self, source_currency: str, exchanged_currency: str, valuation_date: str) -> Dict[str, Any]:
+        """
+        Get exchange rate data for a specific currency pair and date.
+        
+        Args:
+            source_currency: The source currency code
+            exchanged_currency: The target currency code
+            valuation_date: The date in YYYY-MM-DD format
+            
+        Returns:
+            Dict[str, Any]: The exchange rate data from the API
+        """
         params = {'source_currency': source_currency, 'exchanged_currency': exchanged_currency, 'valuation_date': valuation_date}
         async with aiohttp.ClientSession() as session:
             return await self.fetch(session, 'currency_exchange_api', params)
 
-    async def get_currency_rates_list(self, start_date, end_date, base, symbols):
+    async def get_currency_rates_list(self, start_date: str, end_date: str, base: str, symbols: str) -> Dict[str, Dict[str, float]]:
+        """
+        Get a list of currency rates for a date range.
+        
+        Args:
+            start_date: Start date in YYYY-MM-DD format
+            end_date: End date in YYYY-MM-DD format
+            base: The base currency code
+            symbols: Comma-separated string of target currency codes
+            
+        Returns:
+            Dict[str, Dict[str, float]]: Dictionary of exchange rates for each date and currency
+        """
         params = {'start_date': start_date, 'end_date': end_date, 'base': base, 'symbols': symbols}
 
         async with aiohttp.ClientSession() as session:
@@ -38,8 +87,8 @@ class InternalAPI:
         current_date = start_date
         current_date = timezone.datetime.strptime(current_date, '%Y-%m-%d')
         end_date = timezone.datetime.strptime(end_date, '%Y-%m-%d')
-        date_list = []
-        data_return = {}
+        date_list: List[str] = []
+        data_return: Dict[str, Dict[str, float]] = {}
         
         while current_date <= end_date:
             date_list.append(current_date.strftime('%Y-%m-%d'))
@@ -53,7 +102,18 @@ class InternalAPI:
 
         return data_return
 
-    async def get_convert_amount(self, currency_base, currency_to_convert, amount):
+    async def get_convert_amount(self, currency_base: str, currency_to_convert: str, amount: Union[int, float]) -> Dict[str, Any]:
+        """
+        Convert an amount between currencies using current exchange rates.
+        
+        Args:
+            currency_base: The source currency code
+            currency_to_convert: The target currency code
+            amount: The amount to convert
+            
+        Returns:
+            Dict[str, Any]: Dictionary containing conversion details including timestamp, date, currencies, and converted value
+        """
         source_currency = currency_base
         exchanged_currency = currency_to_convert
         valuation_date = str(timezone.now().date())
@@ -63,24 +123,27 @@ class InternalAPI:
         async with aiohttp.ClientSession() as session:
             data = await self.fetch(session, 'currency_exchange_api', params)
 
-        rate_value = None
+        rate_value: Optional[float] = None
         if data["rate_value"] is not None:
             rate_value = float(data["rate_value"]) * float(amount)
 
         date_obj = timezone.datetime.strptime(valuation_date, '%Y-%m-%d')
         data_return = {
             "timestamp": int(timezone.datetime.timestamp(date_obj)),
-            "date" : valuation_date,
-            "from" : source_currency,
-            "to" : exchanged_currency,
-            "amount" : amount,
-            "value" : rate_value
+            "date": valuation_date,
+            "from": source_currency,
+            "to": exchanged_currency,
+            "amount": amount,
+            "value": rate_value
         }
 
         return data_return
 
-async def main():
-
+async def main() -> None:
+    """
+    Main function to demonstrate the usage of InternalAPI.
+    This function is used for testing purposes and should not be called in production.
+    """
     internal_api = InternalAPI()
     
     source_currency = "USD"
@@ -93,7 +156,7 @@ async def main():
     start_date = "2025-03-20"
     end_date = "2025-03-22"
     base = "USD"
-    symbols = "EUR, GBP" #["EUR", "CHF", "USD", "GBP"]
+    symbols = "EUR, GBP"  # ["EUR", "CHF", "USD", "GBP"]
     symbols = "GBP, EUR"
     data = await internal_api.get_currency_rates_list(start_date, end_date, base, symbols)
     print(data)
@@ -103,7 +166,6 @@ async def main():
     amount = 100
     data = await internal_api.get_convert_amount(currency_base, currency_to_convert, amount)
     print(data)
-    
 
 if __name__ == "__main__":
     asyncio.run(main())

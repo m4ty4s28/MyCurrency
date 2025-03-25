@@ -1,0 +1,18 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h2>Conversor de Monedas</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="button">Convertir</button>
+</form>
+
+{% if conversions %}
+    <h3>Resultados:</h3>
+    <ul>
+        {% for code, converted_amount in conversions.items %}
+            <li>{{ amount }} {{ base_currency }} → {{ converted_amount }} {{ code }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock %}
