@@ -35,33 +35,44 @@ class CurrencyConverterAdmin(admin.ModelAdmin):
         context = {"form": CurrencyConverterForm()}
 
         if request.method == "POST":
+
             form = CurrencyConverterForm(request.POST)
+
             if form.is_valid():
                 base_currency = form.cleaned_data["base_currency"]
                 target_currencies = form.cleaned_data["target_currencies"]
                 amount = float(form.cleaned_data["amount"])
 
-                params = {
-                    "currency_base" : base_currency.symbol,
-                    "currency_to_convert" : target_currencies.symbol,
-                    "amount" : amount
-                }
+                target_currencies_list = list(target_currencies.values_list("symbol", flat=True))
 
                 from backbase_app.api.generic_api import GenericAPI
                 from backbase_app.api.providers_api import run_asyncio_task
 
-                generic_api = GenericAPI()
-                data = run_asyncio_task(generic_api.get_convert_amount, base_currency.symbol, target_currencies.symbol, amount)
+                data_return = {
+                    "form": form,
+                    "amount": amount,
+                    "base_currency": base_currency,
+                    "conversions" : {}
+                }
 
-                if data:
-                    context.update({
-                        "form": form,
-                        "conversions": {params["currency_to_convert"] : data["value"]},
-                        "amount": amount,
-                        "base_currency": base_currency
-                    })
+                conversions_data = {}
+
+                for target_symbol in target_currencies_list:
+                    params = {
+                        "currency_base" : base_currency.symbol,
+                        "currency_to_convert" : target_symbol,
+                        "amount" : amount
+                    }
+
+                    generic_api = GenericAPI()
+                    data = run_asyncio_task(generic_api.get_convert_amount, base_currency.symbol, target_symbol, amount)
+                    conversions_data[params["currency_to_convert"]] = round(float(data["value"]),6)
+                    
+                data_return["conversions"] = conversions_data
+                if data_return:
+                    context.update(data_return)
                 else:
-                    messages.error(request, "No se pudieron obtener los tipos de cambio.")
+                    messages.error(request, "Exchange rates could not be obtained.")
 
         return render(request, "admin/converter.html", context)
 
