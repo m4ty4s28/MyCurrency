@@ -165,6 +165,11 @@ REST_FRAMEWORK = {
 
 API_URL_INTERNAL: str = "http://127.0.0.1:8000/"
 API_VERSION_INTERNAL: str = "api/v1/"
+
 API_KEY_CURRENCYBE: str = "mE41rNwTjgGW9xfz1mBY9JSQCSP3BqKF"
 API_URL_CURRENCYBE: str = "https://api.currencybeacon.com/"
 API_VERSION_CURRENCYBE: str = "v1/"
+
+API_KEY_MOCK: str = "123456789"
+API_URL_MOCK: str = "https://api.example.com/"
+API_VERSION_MOCK: str = "v1/"

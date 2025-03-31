@@ -90,10 +90,14 @@ class InternalAPI:
         while current_date <= end_date:
             date_list.append(current_date.strftime('%Y-%m-%d'))
             current_date += timezone.timedelta(days=1)
-        
+        print("datadata", data)
         for date in date_list:
             data_return[date] = {}
             for rate in data:
+                #print("data", data)
+                print("rate", rate)
+                print("date", date)
+                #print("#####", rate["valuation_date"], date)
                 if rate["valuation_date"] == date:
                     data_return[date][rate["exchanged_currency__symbol"]] = rate["rate_value"]
 

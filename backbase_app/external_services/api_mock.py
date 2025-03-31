@@ -14,10 +14,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backbase_project.settings')
 
 import django
 django.setup()
-
-API_KEY_MOCK: str = "123456789"
-API_URL_MOCK: str = "https://api.example.com/"
-API_VERSION_MOCK: str = "v1/"
+from django.conf import settings
 
 class MockAPI:
     """
@@ -35,8 +32,8 @@ class MockAPI:
         """
         Initialize the MockAPI with mock API key and base URL.
         """
-        self.api_key: str = API_KEY_MOCK
-        self.base_url: str = API_URL_MOCK + API_VERSION_MOCK
+        self.api_key: str = settings.API_KEY_MOCK
+        self.base_url: str = settings.API_URL_MOCK + settings.API_VERSION_MOCK
 
     async def get_latest_rates(self, base: str = 'USD', symbols: List[str] = []) -> Dict[str, Any]:
         """

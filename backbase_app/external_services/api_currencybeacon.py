@@ -34,10 +34,14 @@ class CurrencyBeaconAPI:
         Returns:
             Dict[str, Any]: The JSON response from the API
         """
-        url = f"{self.base_url}{endpoint}"
-        params['api_key'] = self.api_key
-        async with session.get(url, params=params) as response:
-            return await response.json()
+        try:
+            url = f"{self.base_url}{endpoint}"
+            params['api_key'] = self.api_key
+            async with session.get(url, params=params) as response:
+                return await response.json()
+        except Exception as e:
+            print(f"Error fetching {url}: {e}")
+            raise
 
     async def get_latest_rates(self, base: str = 'USD', symbols: Optional[List[str]] = None) -> Dict[str, Any]:
         """
