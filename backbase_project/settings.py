@@ -146,8 +146,25 @@ CELERY_TASK_SERIALIZER = 'json'
 
 
 CELERY_BEAT_SCHEDULE = {
-      'add-every-30-seconds': {
-        'task': 'backbase_app.tasks.get_latest_rates_task',
+      'add-every-day': {
+        'task': 'backbase_app.tasks.save_data_today',
         'schedule': crontab(minute='*/1'),
+        #'schedule': crontab(hour=0, minute=0)
     },
 }
+
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ],
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.NamespaceVersioning",
+    "DEFAULT_VERSION": "v1",
+    "ALLOWED_VERSIONS": ["v1", "v2"],
+}
+
+
+API_URL_INTERNAL: str = "http://127.0.0.1:8000/"
+API_VERSION_INTERNAL: str = "api/v1/"
+API_KEY_CURRENCYBE: str = "mE41rNwTjgGW9xfz1mBY9JSQCSP3BqKF"
+API_URL_CURRENCYBE: str = "https://api.currencybeacon.com/"
+API_VERSION_CURRENCYBE: str = "v1/"

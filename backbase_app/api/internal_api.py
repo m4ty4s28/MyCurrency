@@ -1,7 +1,6 @@
 import aiohttp
 import asyncio
 from typing import Dict, List, Any, Optional, Union
-from datetime import datetime
 
 import sys
 import os
@@ -12,9 +11,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backbase_project.settings')
 import django
 django.setup()
 
-SYMBOLS: List[str] = ["EUR", "CHF", "USD", "GBP"]
-API_URL_INTERNAL: str = "http://127.0.0.1:8000/"
-API_VERSION_INTERNAL: str = "api/"
+from django.conf import settings
 from django.utils import timezone
 
 class InternalAPI:
@@ -32,7 +29,7 @@ class InternalAPI:
         """
         Initialize the InternalAPI with the base URL.
         """
-        self.base_url: str = API_URL_INTERNAL + API_VERSION_INTERNAL
+        self.base_url: str = settings.API_URL_INTERNAL + settings.API_VERSION_INTERNAL
 
     async def fetch(self, session: aiohttp.ClientSession, endpoint: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """

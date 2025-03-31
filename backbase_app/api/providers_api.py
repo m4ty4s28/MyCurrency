@@ -12,7 +12,9 @@ from backbase_app.external_services.api_currencybeacon import CurrencyBeaconAPI
 from backbase_app.external_services.api_mock import MockAPI
 from typing import Dict, List, Optional, Any, Union, Callable
 import asyncio
-from datetime import date, datetime
+from datetime import date
+from asgiref.sync import sync_to_async
+from django.utils import timezone
 
 def run_asyncio_task(async_func: Callable, *args: Any, **kwargs: Any) -> Any:
     """
@@ -30,8 +32,7 @@ def run_asyncio_task(async_func: Callable, *args: Any, **kwargs: Any) -> Any:
     asyncio.set_event_loop(loop)
     return loop.run_until_complete(async_func(*args, **kwargs))
 
-from asgiref.sync import sync_to_async
-from django.utils import timezone
+
 
 @sync_to_async
 def save_data_rate(base: str, symbol: str, rate_value: float, date: Optional[date] = None) -> Dict[str, Optional[float]]:
@@ -49,9 +50,24 @@ def save_data_rate(base: str, symbol: str, rate_value: float, date: Optional[dat
     """
     source_currency_obj = Currency.objects.get(symbol=base)
     exchanged_currency_obj = Currency.objects.get(symbol=symbol)
+
     try:
         if not date:
             date = timezone.now().date()
+
+        """ # other method with similar results
+        try:
+            CurrencyExchangeRate.objects.create(
+                    source_currency=source_currency_obj,
+                    exchanged_currency=exchanged_currency_obj,
+                    valuation_date=date,
+                    rate_value=rate_value
+                )
+        except Exception as e:
+            #print(e)
+            pass
+        """
+
         currency_exchange_exists = CurrencyExchangeRate.objects.filter(
             source_currency=source_currency_obj,
             exchanged_currency=exchanged_currency_obj,
@@ -59,11 +75,9 @@ def save_data_rate(base: str, symbol: str, rate_value: float, date: Optional[dat
         ).first()
 
         if currency_exchange_exists:
-            print("update rate value in database")
             currency_exchange_exists.rate_value = float(rate_value)
             currency_exchange_exists.save()
         else:
-            print("create rate value in database")
             CurrencyExchangeRate.objects.create(
                 source_currency=source_currency_obj,
                 exchanged_currency=exchanged_currency_obj,
@@ -86,22 +100,22 @@ def save_data_time_series(data: Dict[str, Dict[str, float]], base: str) -> None:
         data: Dictionary containing exchange rates for different dates and currencies
         base: The base currency code
     """
+
+    data_list = []
     base_currency_obj = Currency.objects.get(symbol=base)
     for date_str, symbols in data.items():
         date_obj = timezone.datetime.strptime(date_str, '%Y-%m-%d')
         for symbol, rate_value in symbols.items():
             symbol_obj = Currency.objects.get(symbol=symbol)
-            if not CurrencyExchangeRate.objects.filter(
-                source_currency=base_currency_obj,
-                exchanged_currency=symbol_obj,
-                valuation_date=date_obj,
-            ).exists():
-                CurrencyExchangeRate.objects.create(
+            data_list.append(
+                CurrencyExchangeRate(
                     source_currency=base_currency_obj,
                     exchanged_currency=symbol_obj,
                     valuation_date=date_obj,
                     rate_value=float(rate_value)
                 )
+            )
+    CurrencyExchangeRate.objects.bulk_create(data_list, batch_size=100, ignore_conflicts=True)
 
 @sync_to_async
 def save_data_convert(from_currency: str, to_currency: str, rate_value: float) -> None:
@@ -123,7 +137,7 @@ def save_data_convert(from_currency: str, to_currency: str, rate_value: float) -
             rate_value=rate_value
         )
     except Exception as e:
-        print(e)
+        pass
 
 class ProvidersAPI:
     """
@@ -225,7 +239,7 @@ class ProvidersAPI:
 
         return data
 
-    async def get_time_series(self, start_date: str, end_date: str, base: str, symbols: List[str], provider: str) -> Dict[str, Dict[str, float]]:
+    async def get_time_series(self, start_date: str, end_date: str, base: str, symbols: List[str], provider: str, save_data: bool = True) -> Dict[str, Dict[str, float]]:
         """
         Get exchange rates for a date range from a specific provider.
         
@@ -240,7 +254,8 @@ class ProvidersAPI:
             Dict[str, Dict[str, float]]: Dictionary of exchange rates for each date and currency
         """
         data = await self.provider_map[provider].get_time_series(start_date, end_date, base, symbols)
-        await save_data_time_series(data, base)
+        if save_data:
+            await save_data_time_series(data, base)
         return data
 
 async def main() -> None:
@@ -251,17 +266,18 @@ async def main() -> None:
     api = ProvidersAPI()
 
     symbols = ["EUR", "CHF", "USD", "GBP"]
-    symbols = ["EUR"]  # , "CHF", "USD", "GBP"]
+    #symbols = ["EUR"]  # , "CHF", "USD", "GBP"]
 
     base = "USD"
 
-    """
+    #"""
     data = await api.get_latest_rates(base, symbols, "MC")
     print(data)
     print("----------------")
     data = await api.get_latest_rates( base, symbols, "CB")
     print(data)
     #sys.exit()
+    """
 
     date = "2025-03-19"
     base = "USD"
@@ -275,6 +291,7 @@ async def main() -> None:
     
     #sys.exit()
     """
+    """
     print("----------------")
     data = await api.convert_currency("USD", "EUR", 100, "MC")
     print(data)
@@ -284,14 +301,18 @@ async def main() -> None:
     amount = 100
     data = await api.convert_currency(currency_to_convert, currency_base, amount, "CB")
     print(data)
+    """
+    #"""
     print("---------------")
     start_date = "2025-03-20"
-    end_date = "2025-03-22"
-    data = await api.get_time_series(start_date, end_date, 'USD', ["EUR", "CHF", "USD", "GBP"], "MC")
-    print(data)
-    print("----------------")
-    data = await api.get_time_series(start_date, end_date, 'USD', ["EUR", "CHF", "USD", "GBP"], "CB")
-    print(data)
+    start_date = "2025-01-01"
+    end_date = "2025-03-30"
+    data = await api.get_time_series(start_date, end_date, 'USD', ["EUR", "CHF", "USD", "GBP"], "MC", True)
+    #print(data)
+    #print("----------------")
+    #data = await api.get_time_series(start_date, end_date, 'USD', ["EUR", "CHF", "USD", "GBP"], "CB", True)
+    #print(data)
+    #"""
 
 if __name__ == "__main__":
     asyncio.run(main())

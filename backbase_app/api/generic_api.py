@@ -9,15 +9,12 @@ django.setup()
 
 from backbase_app.api.providers_api import ProvidersAPI
 from backbase_app.api.internal_api import InternalAPI
-from backbase_app.models import CurrencyExchangeRate, Currency, ProviderExchange
+from backbase_app.models import ProviderExchange
 from typing import Dict, List, Optional, Any, Union
+
 import aiohttp
 import asyncio
-
-SYMBOLS: List[str] = ["EUR", "CHF", "USD", "GBP"]
-API_URL_INTERNAL: str = "http://127.0.0.1:8000/"
-API_VERSION_INTERNAL: str = "api/"
-
+from django.conf import settings
 from asgiref.sync import sync_to_async
 
 @sync_to_async
@@ -69,7 +66,7 @@ class GenericAPI:
         """
         Initialize the GenericAPI with internal and provider API clients.
         """
-        self.base_url: str = API_URL_INTERNAL + API_VERSION_INTERNAL
+        self.base_url: str = settings.API_URL_INTERNAL + settings.API_VERSION_INTERNAL
         self.internal_api: InternalAPI = InternalAPI()
         self.providers_api: ProvidersAPI = ProvidersAPI()
 
@@ -214,19 +211,22 @@ async def main() -> None:
     valuation_date = "2025-02-02"
     data = await generic_api.get_exchange_rate_data(source_currency, exchanged_currency, valuation_date)
     print("data", data)
+    """
 
-    start_date = "2025-03-20"
-    end_date = "2025-03-22"
+    start_date = "2025-03-01"
+    end_date = "2025-03-25"
     base = "USD"
     symbols = "GBP, EUR"
     data = await generic_api.get_currency_rates_list(start_date, end_date, base, symbols)
     print(data)
+
     """
     currency_base = "USD"
     currency_to_convert = "EUR"
     amount = 100
     data = await generic_api.get_convert_amount(currency_base, currency_to_convert, amount)
     print(data)
+    """
 
 if __name__ == "__main__":
     asyncio.run(main())

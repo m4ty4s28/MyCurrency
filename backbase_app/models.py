@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.timezone import now
 from typing import Any
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
 
 class Currency(models.Model):
     """
@@ -38,7 +40,10 @@ class CurrencyExchangeRate(models.Model):
     source_currency: Currency = models.ForeignKey(Currency, related_name='currency_src', on_delete=models.CASCADE)
     exchanged_currency: Currency = models.ForeignKey(Currency, related_name='currency_exc', on_delete=models.CASCADE)
     valuation_date: Any = models.DateField(db_index=True, default=now, blank=True)
-    rate_value: Any = models.DecimalField(db_index=True, decimal_places=6, max_digits=18)
+    rate_value: Any = models.DecimalField(decimal_places=6, max_digits=18)
+
+    class Meta:
+        unique_together = ['source_currency', 'exchanged_currency', 'valuation_date']
 
     def __str__(self) -> str:
         """
@@ -72,3 +77,21 @@ class ProviderExchange(models.Model):
             str: A formatted string showing the provider name and priority
         """
         return f"{self.name} - {self.priority}"
+
+@receiver(pre_save, sender=CurrencyExchangeRate)
+def update_rate_if_exists(sender, instance, **kwargs):
+    """
+    """
+
+    existing = CurrencyExchangeRate.objects.filter(
+        source_currency=instance.source_currency,
+        exchanged_currency=instance.exchanged_currency,
+        valuation_date=instance.valuation_date
+    ).first()
+
+    if existing:
+        if existing.rate_value != instance.rate_value:
+            try:
+                CurrencyExchangeRate.objects.filter(id=existing.id).update(rate_value=instance.rate_value)
+            except Exception as e:
+                pass

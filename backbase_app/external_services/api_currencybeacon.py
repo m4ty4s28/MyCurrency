@@ -1,12 +1,7 @@
 import aiohttp
 import asyncio
 from typing import Dict, List, Optional, Any, Union
-from datetime import date
-
-SYMBOLS: List[str] = ["EUR", "CHF", "USD", "GBP"]
-API_KEY: str = "mE41rNwTjgGW9xfz1mBY9JSQCSP3BqKF"
-API_URL_CURRENCYBE: str = "https://api.currencybeacon.com/"
-API_VERSION_CURRENCYBE: str = "v1/"
+from django.conf import settings
 
 class CurrencyBeaconAPI:
     """
@@ -24,8 +19,8 @@ class CurrencyBeaconAPI:
         """
         Initialize the CurrencyBeaconAPI with API key and base URL.
         """
-        self.api_key: str = API_KEY
-        self.base_url: str = API_URL_CURRENCYBE + API_VERSION_CURRENCYBE
+        self.api_key: str = settings.API_KEY_CURRENCYBE
+        self.base_url: str = settings.API_URL_CURRENCYBE + settings.API_VERSION_CURRENCYBE
 
     async def fetch(self, session: aiohttp.ClientSession, endpoint: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """
