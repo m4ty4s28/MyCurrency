@@ -11,7 +11,6 @@ services:
     environment:
       - DEBUG=True
       - CELERY_BROKER=redis://redis:6379/0
-      - FLOWER_UNAUTHENTICATED_API=True
     depends_on:
       - redis
 
@@ -27,7 +26,6 @@ services:
     environment:
       - CELERY_BROKER=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - FLOWER_UNAUTHENTICATED_API=True
     depends_on:
       - redis
       - django
@@ -56,7 +54,6 @@ services:
       - "5555:5555"
     environment:
       - CELERY_BROKER=redis://redis:6379/0
-      - FLOWER_UNAUTHENTICATED_API=True
     depends_on:
       - redis
 
@@ -65,7 +62,3 @@ services:
     container_name: redis_celery_backbase
     ports:
       - "6379:6379"
-
-volumes:
-  es_data:
-    driver: local

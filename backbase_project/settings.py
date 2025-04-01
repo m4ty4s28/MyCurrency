@@ -145,7 +145,7 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_BEAT_SCHEDULE = {
       'add-every-day': {
         'task': 'backbase_app.tasks.save_data_today',
-        'schedule': crontab(hour=0, minute=0)
+        'schedule': crontab(hour=0, minute=0),
     },
 }
 
