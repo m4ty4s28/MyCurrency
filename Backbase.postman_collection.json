@@ -1,0 +1,886 @@
+{
+	"info": {
+		"_postman_id": "9d0926ed-c3f9-42ef-b780-7d839939248d",
+		"name": "Backbase",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "18296058"
+	},
+	"item": [
+		{
+			"name": "Currency",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/currency/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"currency",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"code\" : 10,\n    \"name\" : \"Pesos\",\n    \"symbol\" : \"ARS\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/currency/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"currency",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modify",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{   \n    \"code\" : 10,\n    \"name\" : \"Pesos\",\n    \"symbol\" : \"ARS\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/currency/ARS/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"currency",
+								"ARS",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/currency/ARS/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"currency",
+								"ARS",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Currency Exchange",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/currency_exchange",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"currency_exchange"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"source_currency\": 1,\n   \"exchanged_currency\": 3,\n   \"rate_value\": \"1.1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/currency_exchange/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"currency_exchange",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Modify",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"source_currency\": 1,\n   \"exchanged_currency\": 2,\n   \"rate_value\": \"1.2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/currency_exchange/9/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"currency_exchange",
+								"9",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/currency_exchange/2/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"currency_exchange",
+								"2",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "API internal",
+			"item": [
+				{
+					"name": "currency_exchange_api",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/currency_exchange_api/?source_currency=USD&exchanged_currency=EUR&valuation_date=2025-03-20",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"currency_exchange_api",
+								""
+							],
+							"query": [
+								{
+									"key": "source_currency",
+									"value": "USD"
+								},
+								{
+									"key": "exchanged_currency",
+									"value": "EUR"
+								},
+								{
+									"key": "valuation_date",
+									"value": "2025-03-20"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "currency_exchange_api",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/v1/currency_exchange_api/?source_currency=USD&exchanged_currency=EUR&valuation_date=2025-03-20",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"v1",
+										"currency_exchange_api",
+										""
+									],
+									"query": [
+										{
+											"key": "source_currency",
+											"value": "USD"
+										},
+										{
+											"key": "exchanged_currency",
+											"value": "EUR"
+										},
+										{
+											"key": "valuation_date",
+											"value": "2025-03-20"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Tue, 01 Apr 2025 16:10:23 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "WSGIServer/0.2 CPython/3.11.11"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Allow",
+									"value": "GET, POST, HEAD, OPTIONS"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Length",
+									"value": "23"
+								},
+								{
+									"key": "Vary",
+									"value": "Cookie"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"rate_value\": 0.901946\n}"
+						}
+					]
+				},
+				{
+					"name": "currency_rates_list_api",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/currency_rates_list_api/?start_date=2025-03-20&end_date=2025-03-22&base=USD&symbols=EUR",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"currency_rates_list_api",
+								""
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2025-03-20"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-03-22"
+								},
+								{
+									"key": "base",
+									"value": "USD"
+								},
+								{
+									"key": "symbols",
+									"value": "EUR"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "currency_rates_list_api",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/v1/currency_rates_list_api/?start_date=2025-03-23&end_date=2025-03-25&base=USD&symbols=EUR",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"v1",
+										"currency_rates_list_api",
+										""
+									],
+									"query": [
+										{
+											"key": "start_date",
+											"value": "2025-03-23"
+										},
+										{
+											"key": "end_date",
+											"value": "2025-03-25"
+										},
+										{
+											"key": "base",
+											"value": "USD"
+										},
+										{
+											"key": "symbols",
+											"value": "EUR"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Tue, 01 Apr 2025 16:10:30 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "WSGIServer/0.2 CPython/3.11.11"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Allow",
+									"value": "GET, POST, HEAD, OPTIONS"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Length",
+									"value": "364"
+								},
+								{
+									"key": "Vary",
+									"value": "Cookie"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"source_currency__symbol\": \"USD\",\n        \"exchanged_currency__symbol\": \"EUR\",\n        \"rate_value\": 0.833166,\n        \"valuation_date\": \"2025-03-25\"\n    },\n    {\n        \"source_currency__symbol\": \"USD\",\n        \"exchanged_currency__symbol\": \"EUR\",\n        \"rate_value\": 0.587184,\n        \"valuation_date\": \"2025-03-24\"\n    },\n    {\n        \"source_currency__symbol\": \"USD\",\n        \"exchanged_currency__symbol\": \"EUR\",\n        \"rate_value\": 0.245048,\n        \"valuation_date\": \"2025-03-23\"\n    }\n]"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "API",
+			"item": [
+				{
+					"name": "exchange_rate_data",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/exchange_rate_data/?source_currency=USD&exchanged_currency=EUR&valuation_date=2025-01-20",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"exchange_rate_data",
+								""
+							],
+							"query": [
+								{
+									"key": "source_currency",
+									"value": "USD"
+								},
+								{
+									"key": "exchanged_currency",
+									"value": "EUR"
+								},
+								{
+									"key": "valuation_date",
+									"value": "2025-01-20"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "exchange_rate_data",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/v1/exchange_rate_data/?source_currency=USD&exchanged_currency=EUR&valuation_date=2025-01-21",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"v1",
+										"exchange_rate_data",
+										""
+									],
+									"query": [
+										{
+											"key": "source_currency",
+											"value": "USD"
+										},
+										{
+											"key": "exchanged_currency",
+											"value": "EUR"
+										},
+										{
+											"key": "valuation_date",
+											"value": "2025-01-21"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Tue, 01 Apr 2025 15:18:52 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "WSGIServer/0.2 CPython/3.11.11"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Length",
+									"value": "24"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"rate_value\": 0.561955\n}"
+						}
+					]
+				},
+				{
+					"name": "currency_rates_list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/currency_rates_list/?start_date=2025-03-20&end_date=2025-03-23&base=USD&symbols=GBP, EUR, CHF",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"currency_rates_list",
+								""
+							],
+							"query": [
+								{
+									"key": "start_date",
+									"value": "2025-03-20"
+								},
+								{
+									"key": "end_date",
+									"value": "2025-03-23"
+								},
+								{
+									"key": "base",
+									"value": "USD"
+								},
+								{
+									"key": "symbols",
+									"value": "GBP, EUR, CHF"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "currency_rates_list",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/v1/currency_rates_list/?start_date=2025-03-20&end_date=2025-03-23&base=USD&symbols=GBP, EUR, CHF",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"v1",
+										"currency_rates_list",
+										""
+									],
+									"query": [
+										{
+											"key": "start_date",
+											"value": "2025-03-20"
+										},
+										{
+											"key": "end_date",
+											"value": "2025-03-23"
+										},
+										{
+											"key": "base",
+											"value": "USD"
+										},
+										{
+											"key": "symbols",
+											"value": "GBP, EUR, CHF"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Tue, 01 Apr 2025 15:18:00 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "WSGIServer/0.2 CPython/3.11.11"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Length",
+									"value": "267"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"2025-03-20\": {\n        \"GBP\": 0.209854,\n        \"CHF\": 0.261696,\n        \"EUR\": 0.901946\n    },\n    \"2025-03-21\": {\n        \"GBP\": 0.931227,\n        \"CHF\": 0.624838,\n        \"EUR\": 0.116947\n    },\n    \"2025-03-22\": {\n        \"GBP\": 0.98858,\n        \"CHF\": 0.545573,\n        \"EUR\": 0.760298\n    },\n    \"2025-03-23\": {\n        \"GBP\": 0.676678,\n        \"CHF\": 0.537344,\n        \"EUR\": 0.245048\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "convert_amount",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/convert_amount/?currency_base=USD&currency_to_convert=EUR&amount=100",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"convert_amount",
+								""
+							],
+							"query": [
+								{
+									"key": "currency_base",
+									"value": "USD"
+								},
+								{
+									"key": "currency_to_convert",
+									"value": "EUR"
+								},
+								{
+									"key": "amount",
+									"value": "100"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "convert_amount",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:8000/api/v1/convert_amount/?currency_base=USD&currency_to_convert=EUR&amount=100",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "8000",
+									"path": [
+										"api",
+										"v1",
+										"convert_amount",
+										""
+									],
+									"query": [
+										{
+											"key": "currency_base",
+											"value": "USD"
+										},
+										{
+											"key": "currency_to_convert",
+											"value": "EUR"
+										},
+										{
+											"key": "amount",
+											"value": "100"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Tue, 01 Apr 2025 15:17:21 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "WSGIServer/0.2 CPython/3.11.11"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "X-Frame-Options",
+									"value": "DENY"
+								},
+								{
+									"key": "Content-Length",
+									"value": "110"
+								},
+								{
+									"key": "X-Content-Type-Options",
+									"value": "nosniff"
+								},
+								{
+									"key": "Referrer-Policy",
+									"value": "same-origin"
+								},
+								{
+									"key": "Cross-Origin-Opener-Policy",
+									"value": "same-origin"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"timestamp\": 1743465600,\n    \"date\": \"2025-04-01\",\n    \"from\": \"USD\",\n    \"to\": \"EUR\",\n    \"amount\": \"100\",\n    \"value\": 92.7146\n}"
+						}
+					]
+				}
+			]
+		}
+	]
+}

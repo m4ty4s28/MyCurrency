@@ -198,36 +198,3 @@ class GenericAPI:
             data["value"] = data["value"]
 
         return data
-
-async def main() -> None:
-    """
-    Main function to demonstrate the usage of GenericAPI.
-    This function is used for testing purposes and should not be called in production.
-    """
-    generic_api = GenericAPI()
-    """
-    source_currency = "USD"
-    exchanged_currency = "EUR"
-    valuation_date = "2025-02-02"
-    data = await generic_api.get_exchange_rate_data(source_currency, exchanged_currency, valuation_date)
-    print("data", data)
-    """
-
-    start_date = "2025-03-01"
-    end_date = "2025-03-25"
-    base = "USD"
-    symbols = "GBP, EUR"
-    data = await generic_api.get_currency_rates_list(start_date, end_date, base, symbols)
-    print(data)
-
-    """
-    currency_base = "USD"
-    currency_to_convert = "EUR"
-    amount = 100
-    data = await generic_api.get_convert_amount(currency_base, currency_to_convert, amount)
-    print(data)
-    """
-
-if __name__ == "__main__":
-    asyncio.run(main())
-

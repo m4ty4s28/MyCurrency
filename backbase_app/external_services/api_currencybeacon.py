@@ -116,34 +116,3 @@ class CurrencyBeaconAPI:
         async with aiohttp.ClientSession() as session:
             data = await self.fetch(session, 'timeseries', params)
             return data["response"]
-
-async def main() -> None:
-    """
-    Main function to demonstrate the usage of CurrencyBeaconAPI.
-    This function is used for testing purposes and should not be called in production.
-    """
-    cb_api = CurrencyBeaconAPI()
-    SYMBOLS = ["EUR", "CHF", "USD", "GBP"]
-    
-    latest_rates = await cb_api.get_latest_rates(symbols=SYMBOLS)
-    print(latest_rates)
-    
-    currency_base = "USD"
-    currency_to_convert = "EUR"
-    amount = 100
-    conversion_result = await cb_api.convert_currency(currency_base, currency_to_convert, amount)
-    print(conversion_result)
-
-    print("----")
-    base = "USD"
-    date = "2025-03-16"
-    conversion_result = await cb_api.get_historical_rates(date, base, SYMBOLS)
-    print(conversion_result)
-
-    print("---------")
-    SYMBOLS = ["EUR", "GBP"]
-    time_series = await cb_api.get_time_series('2025-03-20', '2025-03-22', base, SYMBOLS)
-    print(time_series)
-
-if __name__ == "__main__":
-    asyncio.run(main())

@@ -155,38 +155,3 @@ class MockAPI:
             mock_data["rates"][symbol] = round(random.uniform(0, 1), 8)
 
         return mock_data
-
-async def main() -> None:
-    """
-    Main function to demonstrate the usage of MockAPI.
-    This function is used for testing purposes and should not be called in production.
-    """
-    mock_api = MockAPI()
-    SYMBOLS = ["EUR", "CHF", "USD", "GBP"]
-
-    date = "2025-03-18"
-    base = "USD"
-    latest_rates = await mock_api.get_historical_rates(date, base, symbols=SYMBOLS)
-    print(latest_rates)
-
-    print("----")
-
-    latest_rates = await mock_api.get_latest_rates(symbols=SYMBOLS)
-    print(latest_rates)
-
-    print("----")
-
-    currency_to_convert = "EUR"
-    currency_base = "USD"
-    amount = 100
-    conversion_result = await mock_api.convert_currency(currency_base, currency_to_convert, amount)
-    print(conversion_result)
-
-    start_date = "2025-03-18"
-    end_date = "2025-03-20"
-    
-    time_series = await mock_api.get_time_series(start_date, end_date, 'USD', SYMBOLS)
-    print(time_series)
-
-if __name__ == "__main__":
-    asyncio.run(main())

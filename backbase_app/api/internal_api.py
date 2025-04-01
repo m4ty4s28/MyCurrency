@@ -90,14 +90,9 @@ class InternalAPI:
         while current_date <= end_date:
             date_list.append(current_date.strftime('%Y-%m-%d'))
             current_date += timezone.timedelta(days=1)
-        print("datadata", data)
         for date in date_list:
             data_return[date] = {}
             for rate in data:
-                #print("data", data)
-                print("rate", rate)
-                print("date", date)
-                #print("#####", rate["valuation_date"], date)
                 if rate["valuation_date"] == date:
                     data_return[date][rate["exchanged_currency__symbol"]] = rate["rate_value"]
 
@@ -139,34 +134,3 @@ class InternalAPI:
         }
 
         return data_return
-
-async def main() -> None:
-    """
-    Main function to demonstrate the usage of InternalAPI.
-    This function is used for testing purposes and should not be called in production.
-    """
-    internal_api = InternalAPI()
-    
-    source_currency = "USD"
-    exchanged_currency = "EUR"
-    valuation_date = "2025-03-19"
-    data = await internal_api.get_exchange_rate_data(source_currency, exchanged_currency, valuation_date)
-    print(data)
-    print("----------------")
-
-    start_date = "2025-03-20"
-    end_date = "2025-03-22"
-    base = "USD"
-    symbols = "EUR, GBP"  # ["EUR", "CHF", "USD", "GBP"]
-    symbols = "GBP, EUR"
-    data = await internal_api.get_currency_rates_list(start_date, end_date, base, symbols)
-    print(data)
-    print("-----------")
-    currency_base = "USD"
-    currency_to_convert = "EUR"
-    amount = 100
-    data = await internal_api.get_convert_amount(currency_base, currency_to_convert, amount)
-    print(data)
-
-if __name__ == "__main__":
-    asyncio.run(main())

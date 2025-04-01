@@ -1,0 +1,71 @@
+services:
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: django_app_backbase
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - CELERY_BROKER=redis://redis:6379/0
+      - FLOWER_UNAUTHENTICATED_API=True
+    depends_on:
+      - redis
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: celery_worker_backbase
+    command: >
+      sh -c "python -m celery -A backbase_project worker --loglevel=info --concurrency=10"
+    volumes:
+      - .:/app
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - FLOWER_UNAUTHENTICATED_API=True
+    depends_on:
+      - redis
+      - django
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: celery_beat_backbase
+    command: >
+      sh -c "python -m celery -A backbase_project beat --loglevel=info"
+    volumes:
+      - .:/app
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+      - django
+      - celery
+
+  flower:
+    image: mher/flower
+    container_name: celery_flower_backbase
+    ports:
+      - "5555:5555"
+    environment:
+      - CELERY_BROKER=redis://redis:6379/0
+      - FLOWER_UNAUTHENTICATED_API=True
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: redis_celery_backbase
+    ports:
+      - "6379:6379"
+
+volumes:
+  es_data:
+    driver: local

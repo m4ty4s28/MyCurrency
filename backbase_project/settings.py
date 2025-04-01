@@ -126,11 +126,9 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-REDIS_URL = "172.17.0.3"
+REDIS_URL = "redis"
 
 CELERY_BROKER_URL = f'redis://{REDIS_URL}:6379/0'
-#CELERY_ACCEPT_CONTENT = ['json']
-#CELERY_TASK_SERIALIZER = 'json'
 
 ADMIN_SITE_HEADER = "My Currency"
 ADMIN_SITE_TITLE = "Administration My Currency"
@@ -144,12 +142,10 @@ CELERY_RESULT_SERIALIZER = 'json'
 
 CELERY_TASK_SERIALIZER = 'json'
 
-
 CELERY_BEAT_SCHEDULE = {
       'add-every-day': {
         'task': 'backbase_app.tasks.save_data_today',
-        'schedule': crontab(minute='*/1'),
-        #'schedule': crontab(hour=0, minute=0)
+        'schedule': crontab(hour=0, minute=0)
     },
 }
 

@@ -184,13 +184,8 @@ def get_exchange_rate_data(request: HttpRequest) -> HttpResponse:
         return JsonResponse({'error': 'Invalid date format. It must be in YYYY-MM-DD format.'}, status=400)
     if not source_currency or not exchanged_currency or not valuation_date:
         return JsonResponse({'error': 'Invalid parameters'}, status=400)
-    
-    print("source_currency", source_currency)
-    print("exchanged_currency", exchanged_currency)
-    print("valuation_date", valuation_date)
-    
+        
     data = run_asyncio_task(generic_api.get_exchange_rate_data, source_currency, exchanged_currency, valuation_date)
-    print("data", data)
 
     return JsonResponse(data)
 
@@ -222,14 +217,8 @@ def get_currency_rates_list(request: HttpRequest) -> HttpResponse:
         return JsonResponse({'error': 'Invalid date format. It must be in YYYY-MM-DD format.'}, status=400)
     if not start_date or not end_date or not base or not symbols:
         return JsonResponse({'error': 'Invalid parameters'}, status=400)
-    
-    print("start_date", start_date)
-    print("end_date", end_date)
-    print("base", base)
-    print("symbols", symbols)
 
     data = run_asyncio_task(generic_api.get_currency_rates_list, start_date, end_date, base, symbols)
-    print("data", data)
 
     return JsonResponse(data)
 
@@ -265,11 +254,6 @@ def get_convert_amount(request: HttpRequest) -> HttpResponse:
     if not currency_base or not currency_to_convert or not amount:
         return JsonResponse({'error': 'Invalid parameters'}, status=400)
 
-    print("currency_base", currency_base)
-    print("currency_to_convert", currency_to_convert)
-    print("amount", amount)
-
     data = run_asyncio_task(generic_api.get_convert_amount, currency_base, currency_to_convert, amount)
-    print("data", data)
 
     return JsonResponse(data)
