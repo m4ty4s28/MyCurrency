@@ -277,15 +277,16 @@ async def main() -> None:
     data = await api.get_latest_rates( base, symbols, "CB")
     print(data)
     #sys.exit()
-    """
+    #"""
 
     date = "2025-03-19"
     base = "USD"
     symbols = ["EUR", "CHF", "USD", "GBP"]
     symbols = ["EUR"] #, "CHF", "USD", "GBP"]
     data = await api.get_historical_rates(date, base, symbols, "MC")
-    print(data)
+    print("historical", data)
 
+    """
     data = await api.get_historical_rates(date, base, symbols, "CB")
     print(data)
     
@@ -302,7 +303,7 @@ async def main() -> None:
     data = await api.convert_currency(currency_to_convert, currency_base, amount, "CB")
     print(data)
     """
-    #"""
+    """
     print("---------------")
     start_date = "2025-03-20"
     start_date = "2025-01-01"
@@ -312,7 +313,7 @@ async def main() -> None:
     #print("----------------")
     #data = await api.get_time_series(start_date, end_date, 'USD', ["EUR", "CHF", "USD", "GBP"], "CB", True)
     #print(data)
-    #"""
+    """
 
 if __name__ == "__main__":
     asyncio.run(main())
